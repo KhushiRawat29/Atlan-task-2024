@@ -11,7 +11,6 @@ import Perks from './components/Perks/Perks';
 import { FaUserCircle } from 'react-icons/fa';
 import QuestionsSection from './components/QuestionsSection/QuestionsSection';
 import AllItineraries from './components/AllItineraries/AllItineraries';
-// import { createItinerary } from './services/api'; // Removed 
 import itineraryData from './data/itineraries.json';
 
 const App = () => {
@@ -24,16 +23,23 @@ const App = () => {
 
 const AppContent = () => {
   const [itineraries, setItineraries] = useState([]);
-  const [showLoginPopup, setShowLoginPopup] = useState(false);
+   const [showLoginPopup, setShowLoginPopup] = useState(false);
   const [showSignUpPopup, setShowSignUpPopup] = useState(false);
-  const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')));
+  const [user, setUser] = useState(() => {
+    const userData = localStorage.getItem('user');
+    try {
+      return userData ? JSON.parse(userData) : null;
+    } catch (error) {
+      console.error("Failed to parse user data from localStorage:", error);
+      return null;
+    }
+  });
   const [location, setLocation] = useState('');
   const formRef = useRef(null);
   const navigate = useNavigate();
 
   const handleGenerateItinerary = (preferences) => {
     setLocation(preferences.location);
-    // Use the imported itinerary data
     setItineraries(itineraryData);
   };
 
@@ -46,7 +52,7 @@ const AppContent = () => {
   const handleSignUpSuccess = (userData) => {
     setUser(userData);
     localStorage.setItem('user', JSON.stringify(userData));
-    navigate('/'); // Navigate to home page after sign up
+    navigate('/');
   };
 
   const handleReset = () => {
@@ -86,7 +92,6 @@ const AppContent = () => {
               <div className="flex flex-col md:flex-row gap-8">
                 <QuestionsSection handleGenerateItinerary={handleGenerateItinerary} formRef={formRef} handleReset={handleReset} />
                 <div className="flex flex-col gap-8" style={{ flex: 3 }}>
-                  
                   <div className="shadow-lg rounded-2xl">
                     <iframe
                       title="Google Map"
@@ -101,7 +106,7 @@ const AppContent = () => {
                   <div className="rounded-2xl pl-8 relative">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       {itineraries.slice(0, 2).map(itinerary => (
-                        <div key={itinerary.id} className="w-full p-2  border rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300" style={{ aspectRatio: '4 / 3' }}>
+                        <div key={itinerary.id} className="w-full p-2 border rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300" style={{ aspectRatio: '4 / 3' }}>
                           <div className="h-3/4">
                             <img src={itinerary.image} alt={itinerary.title} className="w-full h-full object-cover rounded-t-lg" />
                           </div>
@@ -115,7 +120,7 @@ const AppContent = () => {
                       ))}
                       {itineraries.length > 2 && (
                         <div className="w-full p-4 bg-white border rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 relative" style={{ aspectRatio: '4 / 3' }}>
-                          <div className="h-full w-full absolute inset-0  bg-opacity-50 backdrop-blur-sm rounded-lg"></div>
+                          <div className="h-full w-full absolute inset-0 bg-opacity-50 backdrop-blur-sm rounded-lg"></div>
                           <div className="h-3/4">
                             <img src={itineraries[2].image} alt={itineraries[2].title} className="w-full h-full object-cover rounded-t-lg" />
                           </div>
